@@ -21,6 +21,13 @@ let currencyView = document.getElementById("currency-view")
 let myPlansBtn = document.getElementById("myPlans-btn")
 let myPlansView = document.getElementById("my-plans-view")
 let holidaysContent = document.getElementById("holidays-content")
+let holidaysContentView = document.querySelector(".header-content-view")
+let eventsContent = document.getElementById("events-content")
+// let eventsView = document.getElementById("events-view")
+let eventsContentView = document.querySelector(".events-content-view")
+ let year;
+ let city;
+ let country;
 
 if (window.location.pathname !== "?page=dashboard") {
     history.pushState({}, "", "?page=dashboard");
@@ -32,9 +39,9 @@ if (window.location.pathname !== "?page=dashboard") {
   
 exploreBtn.addEventListener("click", async function () {
     console.log("hiii explore btn")
-    let country = countryInput.value;
-    let city = cityInput.value;
-    let year = yearInput.value;
+     country = countryInput.value;
+     city = cityInput.value;
+     year = yearInput.value;
 
     let container1 = `<div class="selected-flag">
                   <img id="selected-country-flag" src="https://flagcdn.com/w80/eg.png" alt="Egypt">
@@ -59,7 +66,7 @@ exploreBtn.addEventListener("click", async function () {
 
 
 
-
+// ============================DASHBOARD=========================
 
 dashboardBtn.addEventListener("click", function(){
   dashboardView.classList.add("active")
@@ -71,6 +78,8 @@ dashboardBtn.addEventListener("click", function(){
 })
 
 
+// ============================PLANS=========================
+
 myPlansBtn.addEventListener("click", function(){
   myPlansView.classList.add("active")
   dashboardView.classList.remove("active")
@@ -79,6 +88,8 @@ myPlansBtn.addEventListener("click", function(){
    history.pushState({}, "", "?page=myPlans");
 
 })
+
+// =========================HOLIDAYS======================
 
  class holidays{
     getHolidays(){
@@ -115,24 +126,23 @@ myPlansBtn.addEventListener("click", function(){
 
     history.pushState({}, "", "?page=holidays");
 }
-// async getHolidaysApi(){
-// const response = await fetch("https://date.nager.at/api/v3/PublicHolidays/2026/AR")
-//   const x = await response.json()
-//    console.log(x);
-//    return x;
-// }
 }
 
 let myHolidays = new holidays()
 
 holidayBtn.addEventListener("click",async function(){
   myHolidays.getHolidays()
-//   myHolidays.getHolidaysApi()
-    const response = await fetch("https://date.nager.at/api/v3/PublicHolidays/2026/AR")
+
+
+
+    const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/CA`)
   const x = await response.json()
    console.log(x);
+
    let container2="";
    holidaysContent.innerHTML = "";
+
+
    for(let i = 0 ; i<x.length ; i++){
     const eventDate = new Date(x[i].date);
      container2=`<div class="holiday-card">
@@ -153,10 +163,30 @@ holidayBtn.addEventListener("click",async function(){
 
             holidaysContent.innerHTML+=container2
    }
-   
+
+
+   let container3=`
+            
+
+<div class="view-header-icon"><i class="fa-solid fa-calendar-days"></i></div>
+            <div class="view-header-content">
+              <h2>Public Holidays Explorer</h2>
+              <p>Browse public holidays for ${country} and plan your trips around them</p>
+            </div>
+            <div class="view-header-selection" id="holidays-selection">
+              <div class="current-selection-badge">
+                <img src="https://flagcdn.com/w40/eg.png" alt="Egypt" class="selection-flag">
+                <span>${country}</span>
+                <span class="selection-year">${year}</span>
+              </div>
+            </div>
+
+              `
+
+              holidaysContentView.innerHTML=container3
 })
 
-
+// ============================EVENTS=========================
 
 class events{
     getEvents(){
@@ -197,13 +227,92 @@ class events{
 }
 let myEvents = new events()
 
-eventsBtn.addEventListener("click", function(){
+eventsBtn.addEventListener("click",async function(){
   myEvents.getEvents()
    history.pushState({}, "", "?page=events");
 
+   const response = await fetch(`https://app.ticketmaster.com/discovery/v2/events.json?apikey=VwECw2OiAzxVzIqnwmKJUG41FbeXJk1y&city=Toronto&countryCode=CA&size=20`)
+  const x = await response.json()
+   console.log(x._embedded.events);
+
+    let container4="";
+    eventsContent.innerHTML = "";
+    let d=x._embedded.events
+
+
+  
+for (let i = 0; i < d.length; i++) {
+
+  const date = new Date(d[i].dates.start.localDate);
+
+  const formattedDate = date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const time = d[i].dates.start.localTime
+    ? d[i].dates.start.localTime.slice(0, 5)
+    : "";
+    const dateTime = time
+  ? `${formattedDate} at ${time}`
+  : formattedDate;
+
+  container4 = `
+    <div class="event-card">
+      <div class="event-card-image">
+        <img src="${d[i].images[0].url}" alt="Event">
+        <span class="event-card-category">${d[i].classifications[0].segment.name}</span>
+        <button class="event-card-save"><i class="fa-regular fa-heart"></i></button>
+      </div>
+
+      <div class="event-card-body">
+        <h3>${d[i].name}</h3>
+
+        <div class="event-card-info">
+          <div>
+            <i class="fa-regular fa-calendar"></i>
+            ${dateTime} 
+          </div>
+
+          <div>
+            <i class="fa-solid fa-location-dot"></i>
+            ${d[i]._embedded.venues[0].name}, ${d[i]._embedded.venues[0].city.name}
+          </div>
+        </div>
+
+        <div class="event-card-footer">
+          <button class="btn-event">
+            <i class="fa-regular fa-heart"></i> Save
+          </button>
+          <a href="#" class="btn-buy-ticket">
+            <i class="fa-solid fa-ticket"></i> Buy Tickets
+          </a>
+        </div>
+      </div>
+    </div>`;
+
+  eventsContent.innerHTML += container4;
+}
+           let container5=`
+     <div class="view-header-icon"><i class="fa-solid fa-ticket"></i></div>
+            <div class="view-header-content">
+              <h2>Events Explorer</h2>
+              <p>Discover concerts, sports, theatre and more in ${city}</p>
+            </div>
+            <div class="view-header-selection ">
+              <div class="current-selection-badge">
+                <img src="https://flagcdn.com/w40/eg.png" alt="Egypt" class="selection-flag">
+                <span>${country}</span>
+                <span class="selection-city"> ${city}</span>
+              </div>
+            </div>`
+
+              eventsContentView.innerHTML=container5
+
 })
 
-
+// ============================CURRENCY=========================
 class currency{
     getCurrency(){
         if(dashboardBtn.classList.contains("active")){
@@ -248,3 +357,37 @@ currencyBtn.addEventListener("click", function(){
    
 
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// async getHolidaysApi(){
+// const response = await fetch("https://date.nager.at/api/v3/PublicHolidays/2026/AR")
+//   const x = await response.json()
+//    console.log(x);
+//    return x;
+// }
+//   myHolidays.getHolidaysApi()
