@@ -33,10 +33,81 @@ let country;
 let countryCode;
 let mainData;
 let capital;
-
+let plansContent = document.getElementById("plans-content");
 const countrySelect = document.getElementById("global-country");
 const citySelect = document.getElementById("global-city");
+const clearAllBtn = document.getElementById("clear-all-plans-btn");
+let holidaysSvaedBtn = document.querySelectorAll(".holiday-action-btn")
+let removeButtons = document.querySelectorAll(".btn-plan-remove");
+let filterButtons = document.querySelectorAll(".plans-filter-bar");
 
+
+
+// clearAllBtn.addEventListener("click", function () {
+
+//     Swal.fire({
+//         title: "Clear All Plans?",
+//         text: "This will permanently delete all your saved plans. This action cannot be undone!",
+//         icon: "warning",
+//         showCancelButton: true,
+//         confirmButtonColor: "#ef4444",
+//         cancelButtonColor: "#6b7280",
+//         confirmButtonText: "Yes, clear all",
+//         cancelButtonText: "Cancel"
+//     }).then((result) => {
+
+//        if (result.isConfirmed) {
+
+//     localStorage.removeItem("plans");
+
+//     Swal.fire({
+//         title: "Cleard!",
+//         text: "All plans have been removed.",
+//         icon: "success",
+//         timer: 1500,
+//         showConfirmButton: false
+//     });
+    
+// }
+// savedPlans = localStorage.getItem("plans");
+//     });
+
+// });
+
+
+clearAllBtn.addEventListener("click", function () {
+
+    Swal.fire({
+        title: "Clear All Plans?",
+        text: "This will permanently delete all your saved plans. This action cannot be undone!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#ef4444",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Yes, clear all",
+        cancelButtonText: "Cancel"
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+
+            
+            plansContent.innerHTML = "";
+            localStorage.removeItem("plans");
+            // updatePlanCounts();
+
+            Swal.fire({
+                title: "Cleared!",
+                text: "All plans have been removed.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+        }
+
+    });
+
+});
 
 async function loadCountries() {
   try {
@@ -51,10 +122,10 @@ async function loadCountries() {
 
     const data = await response.json();
 
-    // Get the array of countries
+
     const countries = data.data.objects;
 
-    // Sort alphabetically
+    
     countries.sort((a, b) =>
       a.names.common.localeCompare(b.names.common)
     );
@@ -75,6 +146,7 @@ async function loadCountries() {
   } catch (error) {
     console.log(error);
   }
+  
 }
 
 loadCountries();
@@ -96,14 +168,6 @@ exploreBtn.addEventListener("click", async function () {
   city = cityInput.value;
   year = yearInput.value;
 
-
-
-
-
-
-
-
-
   const response = await fetch(
     `https://api.restcountries.com/countries/v5?q=${country}`,
     { headers: { 'Authorization': 'Bearer rc_live_5a794ffa7661412194f291a63c0ae2c7' } }
@@ -121,14 +185,7 @@ exploreBtn.addEventListener("click", async function () {
 
   }
 
-
-
-
-
-
   countryCode = mainData.codes.alpha_2;
-
-
 
 
   console.log(countryCode);
@@ -375,14 +432,97 @@ longWeekEndBtn.addEventListener("click", async function () {
 })
 // ============================PLANS=========================
 
+class plans {
+  getPlans() {
+    if (currencyBtn.classList.contains("active")) {
+      myPlansView.classList.add("active")
+      currencyView.classList.remove("active")
+      myPlansBtn.classList.add("active")
+      currencyBtn.classList.remove("active")
+
+    } else if (holidayBtn.classList.contains("active")) {
+      myPlansView.classList.add("active")
+      holidayView.classList.remove("active")
+      myPlansBtn.classList.add("active")
+      holidayBtn.classList.remove("active")
+    }
+    else if (weatherBtn.classList.contains("active")) {
+      myPlansView.classList.add("active")
+      weatherView.classList.remove("active")
+      myPlansBtn.classList.add("active")
+      weatherBtn.classList.remove("active")
+    }
+    else if (eventsBtn.classList.contains("active")) {
+      myPlansView.classList.add("active")
+      eventsView.classList.remove("active")
+      myPlansBtn.classList.add("active")
+      eventsBtn.classList.remove("active")
+    }
+    else if (dashboardBtn.classList.contains("active")) {
+      myPlansView.classList.add("active")
+      dashboardView.classList.remove("active")
+      myPlansBtn.classList.add("active")
+      dashboardBtn.classList.remove("active")
+    } else if (longWeekEndBtn.classList.contains("active")) {
+      myPlansView.classList.add("active")
+      longWeekEndView.classList.remove("active")
+      myPlansBtn.classList.add("active")
+      longWeekEndBtn.classList.remove("active")
+    }
+
+    history.pushState({}, "", "?page=myPlans");
+  }
+
+}
+let myPlans = new plans()
 myPlansBtn.addEventListener("click", function () {
-  myPlansView.classList.add("active")
-  dashboardView.classList.remove("active")
-  myPlansBtn.classList.add("active")
-  dashboardBtn.classList.remove("active")
-  history.pushState({}, "", "?page=myPlans");
+console.log("add to my plans");
+  myPlans.getPlans()
 
 })
+plansContent.addEventListener("click", function (e) {
+
+    if (e.target.closest(".btn-plan-remove")) {
+
+        e.target.closest(".plan-card").remove();
+
+        localStorage.setItem("plans", plansContent.innerHTML);
+      
+    }
+  document.getElementById("stat-saved").textContent =
+    plansContent.querySelectorAll(".plan-card").length;
+  document.getElementById("filter-all-count").textContent =
+    plansContent.querySelectorAll(".plan-card").length;
+
+document.getElementById("filter-holiday-count").textContent =
+    plansContent.querySelectorAll(".plan-card-type.holiday").length;
+
+document.getElementById("filter-event-count").textContent =
+    plansContent.querySelectorAll(".plan-card-type.event").length;
+
+document.getElementById("filter-lw-count").textContent =
+    plansContent.querySelectorAll(".plan-card-type.longweekend").length;
+    
+});
+window.addEventListener("load", function () {
+
+   
+  document.getElementById("stat-saved").textContent =
+    plansContent.querySelectorAll(".plan-card").length;
+  document.getElementById("filter-all-count").textContent =
+    plansContent.querySelectorAll(".plan-card").length;
+
+document.getElementById("filter-holiday-count").textContent =
+    plansContent.querySelectorAll(".plan-card-type.holiday").length;
+
+document.getElementById("filter-event-count").textContent =
+    plansContent.querySelectorAll(".plan-card-type.event").length;
+
+document.getElementById("filter-lw-count").textContent =
+    plansContent.querySelectorAll(".plan-card-type.longweekend").length;
+    
+});
+
 
 // =========================HOLIDAYS======================
 
@@ -436,7 +576,7 @@ holidayBtn.addEventListener("click", async function () {
 
 
 
-  const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/${countryCode}`)
+  const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/BE`)
   const x = await response.json()
   console.log(x);
 
@@ -463,7 +603,110 @@ holidayBtn.addEventListener("click", async function () {
             </div>`
 
     holidaysContent.innerHTML += container2
+
+
+    
   }
+let saveButtons = document.querySelectorAll(".holiday-action-btn");
+
+
+for (let i = 0; i < saveButtons.length; i++) {
+
+    saveButtons[i].addEventListener("click", function () {
+
+        const holidayCard = this.closest(".holiday-card");
+
+        const title = holidayCard.querySelector("h3").textContent;
+        const holidayName = holidayCard.querySelector(".holiday-name").textContent;
+        const day = holidayCard.querySelector(".holiday-day-badge").textContent.trim();
+
+        const date =
+            holidayCard.querySelector(".day").textContent + " " +
+            holidayCard.querySelector(".month").textContent;
+
+        plansContent.innerHTML += `
+        <div class="plan-card">
+            <span class="plan-card-type holiday">Holiday</span>
+
+            <div class="plan-card-content">
+                <h4>${title}</h4>
+
+                <div class="plan-card-details">
+                    <div>
+                        <i class="fa-regular fa-calendar"></i>
+                        ${date}
+                    </div>
+
+                    <div>
+                        <i class="fa-solid fa-tag"></i>
+                        ${holidayName}
+                    </div>
+
+                </div>
+
+                <div class="plan-card-actions">
+                    <button class="btn-plan-remove">
+                    <i class="fa-solid fa-trash"></i>
+                        Remove
+                    </button>
+                </div>
+            </div>
+        </div>`;
+//          document.getElementById("stat-saved").textContent =
+//     plansContent.querySelectorAll(".plan-card").length;
+//   document.getElementById("filter-all-count").textContent =
+//     plansContent.querySelectorAll(".plan-card").length;
+
+// document.getElementById("filter-holiday-count").textContent =
+//     plansContent.querySelectorAll(".plan-card-type.holiday").length;
+
+// document.getElementById("filter-event-count").textContent =
+//     plansContent.querySelectorAll(".plan-card-type.event").length;
+
+// document.getElementById("filter-lw-count").textContent =
+//     plansContent.querySelectorAll(".plan-card-type.longweekend").length;
+//         localStorage.setItem("plans", plansContent.innerHTML);
+        
+    });
+};
+
+
+// removeButtons.forEach(btn => {
+//     btn.addEventListener("click", function () {
+
+//         plansContent.innerHTML -= `
+//         <div class="plan-card">
+//             <span class="plan-card-type holiday">Holiday</span>
+
+//             <div class="plan-card-content">
+//                 <h4>${title}</h4>
+
+//                 <div class="plan-card-details">
+//                     <div>
+//                         <i class="fa-regular fa-calendar"></i>
+//                         ${date}
+//                     </div>
+
+//                     <div>
+//                         <i class="fa-solid fa-tag"></i>
+//                         ${holidayName}
+//                     </div>
+
+//                 </div>
+
+//                 <div class="plan-card-actions">
+//                     <button class="btn-plan-remove">
+//                     <i class="fa-solid fa-trash"></i>
+//                         Remove
+//                     </button>
+//                 </div>
+//             </div>
+//         </div>`;
+//         localStorage.setItem("plans", plansContent.innerHTML);
+//         localStorage.removeItem("plans");
+        
+//     });
+// });
 
 
   let container3 = `
@@ -538,7 +781,7 @@ eventsBtn.addEventListener("click", async function () {
   myEvents.getEvents()
   history.pushState({}, "", "?page=events");
 
-  const response = await fetch(`https://app.ticketmaster.com/discovery/v2/events.json?apikey=VwECw2OiAzxVzIqnwmKJUG41FbeXJk1y&city=${capital}&countryCode=${countryCode}&size=20`)
+  const response = await fetch(`https://app.ticketmaster.com/discovery/v2/events.json?apikey=VwECw2OiAzxVzIqnwmKJUG41FbeXJk1y&city=Brussels&countryCode=BE&size=20`)
   const x = await response.json()
   console.log(x._embedded.events);
 
@@ -564,7 +807,7 @@ eventsBtn.addEventListener("click", async function () {
     const dateTime = time
       ? `${formattedDate} at ${time}`
       : formattedDate;
-
+      
     container4 = `
     <div class="event-card">
       <div class="event-card-image">
@@ -601,6 +844,55 @@ eventsBtn.addEventListener("click", async function () {
 
     eventsContent.innerHTML += container4;
   }
+  let saveEventBtns = document.querySelectorAll(".btn-event");
+
+for (let i = 0; i < saveEventBtns.length; i++) {
+
+    saveEventBtns[i].addEventListener("click", function () {
+
+        const eventCard = this.closest(".event-card");
+
+        const title = eventCard.querySelector("h3").textContent;
+
+        const date =
+            eventCard.querySelector(".event-card-info div:first-child").textContent.trim();
+
+        const location =
+            eventCard.querySelector(".event-card-info div:last-child").textContent.trim();
+
+        plansContent.innerHTML += `
+        <div class="plan-card">
+            <span class="plan-card-type event">Event</span>
+
+            <div class="plan-card-content">
+                <h4>${title}</h4>
+
+                <div class="plan-card-details">
+                    <div>
+                        <i class="fa-regular fa-calendar"></i>
+                        ${date}
+                    </div>
+
+                    <div>
+                        <i class="fa-solid fa-location-dot"></i>
+                        ${location}
+                    </div>
+                </div>
+
+                <div class="plan-card-actions">
+                    <button class="btn-plan-remove">
+                        <i class="fa-solid fa-trash"></i>
+                        Remove
+                    </button>
+                </div>
+            </div>
+        </div>`;
+        localStorage.setItem("plans", plansContent.innerHTML);
+    });
+    
+};
+
+
   let container5 = `
      <div class="view-header-icon"><i class="fa-solid fa-ticket"></i></div>
             <div class="view-header-content">
@@ -618,6 +910,8 @@ eventsBtn.addEventListener("click", async function () {
   eventsContentView.innerHTML = container5
 
 })
+
+
 
 // ============================WEATHER=========================
 
@@ -953,6 +1247,16 @@ currencyBtn.addEventListener("click", async function () {
 })
 
 
+ savedPlans = localStorage.getItem("plans");
+ 
+
+if (savedPlans) {
+    plansContent.innerHTML = savedPlans;
+
+}
+ 
+
+ 
 
 
 
@@ -973,8 +1277,14 @@ currencyBtn.addEventListener("click", async function () {
 
 
 
+// document.getElementById("filter-all-count").textContent =
+//     plansContent.querySelectorAll(".plan-card").length;
 
+// document.getElementById("filter-holiday-count").textContent =
+//     plansContent.querySelectorAll(".plan-card-type.holiday").length;
 
+// document.getElementById("filter-event-count").textContent =
+//     plansContent.querySelectorAll(".plan-card-type.event").length;
 
-
-
+// document.getElementById("filter-lw-count").textContent =
+//     plansContent.querySelectorAll(".plan-card-type.longweekend").length;
