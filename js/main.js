@@ -27,6 +27,7 @@ let eventsContentView = document.querySelector(".events-content-view")
 let weatherContent = document.getElementById("weather-content")
 let weatherContentView = document.querySelector(".weather-content-view")
 let dashboardContent = document.getElementById("dashboard-country-info-section")
+let longWeekContent = document.getElementById("lw-content")
 let year;
 let city;
 let country;
@@ -43,36 +44,7 @@ let filterButtons = document.querySelectorAll(".plans-filter-bar");
 
 
 
-// clearAllBtn.addEventListener("click", function () {
 
-//     Swal.fire({
-//         title: "Clear All Plans?",
-//         text: "This will permanently delete all your saved plans. This action cannot be undone!",
-//         icon: "warning",
-//         showCancelButton: true,
-//         confirmButtonColor: "#ef4444",
-//         cancelButtonColor: "#6b7280",
-//         confirmButtonText: "Yes, clear all",
-//         cancelButtonText: "Cancel"
-//     }).then((result) => {
-
-//        if (result.isConfirmed) {
-
-//     localStorage.removeItem("plans");
-
-//     Swal.fire({
-//         title: "Cleard!",
-//         text: "All plans have been removed.",
-//         icon: "success",
-//         timer: 1500,
-//         showConfirmButton: false
-//     });
-    
-// }
-// savedPlans = localStorage.getItem("plans");
-//     });
-
-// });
 
 
 clearAllBtn.addEventListener("click", function () {
@@ -93,7 +65,7 @@ clearAllBtn.addEventListener("click", function () {
             
             plansContent.innerHTML = "";
             localStorage.removeItem("plans");
-            // updatePlanCounts();
+            
 
             Swal.fire({
                 title: "Cleared!",
@@ -154,10 +126,6 @@ loadCountries();
 
 if (window.location.pathname !== "?page=dashboard") {
   history.pushState({}, "", "?page=dashboard");
-  dashboardView.classList.add("active")
-  holidayView.classList.remove("active")
-  dashboardBtn.classList.add("active")
-  holidayBtn.classList.remove("active")
 }
 
 exploreBtn.addEventListener("click", async function () {
@@ -424,10 +392,97 @@ longWeekEndBtn.addEventListener("click", async function () {
 
 
   const response = await fetch(
-    `https://date.nager.at/api/v3/LongWeekend/${year}/${countryCode}`
+    `https://date.nager.at/api/v3/LongWeekend/${year}/BE`
   );
   const data = await response.json();
   console.log(data);
+
+ let containerweek = "";
+  longWeekContent.innerHTML = "";
+
+
+  for (let i = 0; i < data.length; i++) {
+    const eventDate = new Date(data[i].date);
+    
+    containerweek = `
+     <div class="lw-card">
+              <div class="lw-card-header">
+                <span class="lw-badge"><i class="fa-solid fa-calendar-days"></i> ${data[i].dayCount} Days</span>
+                <button class="holiday-action-btn"><i class="fa-regular fa-heart"></i></button>
+              </div>
+              <h3>Long Weekend #1</h3>
+              <div class="lw-dates"><i class="fa-regular fa-calendar"></i>${data[i].startDate} - ${data[i].endDate}</div>
+              ${data[i].needBridgeDay
+    ? `<div class="lw-info-box warning">
+           <i class="fa-solid fa-triangle-exclamation"></i>
+           Bridge day needed!
+       </div>`
+    : `<div class="lw-info-box success">
+           <i class="fa-solid fa-check-circle"></i>
+           No extra days off needed!
+       </div>`}
+              <div class="lw-days-visual">
+                <div class="lw-day"><span class="name">Thu</span><span class="num">1</span></div>
+                <div class="lw-day weekend"><span class="name">Fri</span><span class="num">2</span></div>
+                <div class="lw-day weekend"><span class="name">Sat</span><span class="num">3</span></div>
+                <div class="lw-day weekend"><span class="name">Sun</span><span class="num">4</span></div>
+              </div>
+            </div>
+    `
+
+    longWeekContent.innerHTML += containerweek
+
+
+    
+  }
+
+
+
+let saveButtons = document.querySelectorAll(".holiday-action-btn");
+
+
+for (let i = 0; i < saveButtons.length; i++) {
+
+    saveButtons[i].addEventListener("click", function () {
+
+        const longWeekCard = this.closest(".lw-card");
+
+        const title = longWeekCard.querySelector("h3").textContent;
+        const holidayName = longWeekCard.querySelector(".lw-info-box").textContent;
+        const date = longWeekCard.querySelector(".lw-dates").textContent.trim();
+        
+        plansContent.innerHTML += `
+        <div class="plan-card">
+            <span class="plan-card-type longweekend">Long Weekend</span>
+
+            <div class="plan-card-content">
+                <h4>${title}</h4>
+
+                <div class="plan-card-details">
+                    <div>
+                        <i class="fa-regular fa-calendar"></i>
+                        ${date}
+                    </div>
+
+                    <div>
+                        <i class="fa-solid fa-tag"></i>
+                        ${holidayName}
+                    </div>
+
+                </div>
+
+                <div class="plan-card-actions">
+                    <button class="btn-plan-remove">
+                    <i class="fa-solid fa-trash"></i>
+                        Remove
+                    </button>
+                </div>
+            </div>
+        </div>`;
+
+        
+    });
+};
 
 })
 // ============================PLANS=========================
@@ -652,61 +707,10 @@ for (let i = 0; i < saveButtons.length; i++) {
                 </div>
             </div>
         </div>`;
-//          document.getElementById("stat-saved").textContent =
-//     plansContent.querySelectorAll(".plan-card").length;
-//   document.getElementById("filter-all-count").textContent =
-//     plansContent.querySelectorAll(".plan-card").length;
 
-// document.getElementById("filter-holiday-count").textContent =
-//     plansContent.querySelectorAll(".plan-card-type.holiday").length;
-
-// document.getElementById("filter-event-count").textContent =
-//     plansContent.querySelectorAll(".plan-card-type.event").length;
-
-// document.getElementById("filter-lw-count").textContent =
-//     plansContent.querySelectorAll(".plan-card-type.longweekend").length;
-//         localStorage.setItem("plans", plansContent.innerHTML);
         
     });
 };
-
-
-// removeButtons.forEach(btn => {
-//     btn.addEventListener("click", function () {
-
-//         plansContent.innerHTML -= `
-//         <div class="plan-card">
-//             <span class="plan-card-type holiday">Holiday</span>
-
-//             <div class="plan-card-content">
-//                 <h4>${title}</h4>
-
-//                 <div class="plan-card-details">
-//                     <div>
-//                         <i class="fa-regular fa-calendar"></i>
-//                         ${date}
-//                     </div>
-
-//                     <div>
-//                         <i class="fa-solid fa-tag"></i>
-//                         ${holidayName}
-//                     </div>
-
-//                 </div>
-
-//                 <div class="plan-card-actions">
-//                     <button class="btn-plan-remove">
-//                     <i class="fa-solid fa-trash"></i>
-//                         Remove
-//                     </button>
-//                 </div>
-//             </div>
-//         </div>`;
-//         localStorage.setItem("plans", plansContent.innerHTML);
-//         localStorage.removeItem("plans");
-        
-//     });
-// });
 
 
   let container3 = `
@@ -991,8 +995,30 @@ weatherBtn.addEventListener("click", async function () {
   let container7 = "";
   weatherContent.innerHTML = "";
 
+let hourlyContainer = "";
 
-  container7 = `
+for (let i = 0; i < 23; i++) {
+
+    hourlyContainer += `
+        <div class="hourly-item ${i === 0 ? "now" : ""}">
+            <span class="hourly-time">
+                ${new Date(x.hourly.time[i]).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                })}
+            </span>
+
+            <div class="hourly-icon">
+                <i class="fa-solid fa-sun"></i>
+            </div>
+
+            <span class="hourly-temp">
+                ${x.hourly.temperature_2m[i]}°
+            </span>
+        </div>
+    `;
+}
+    container7 = `
      <div class="weather-hero-card weather-sunny">
               <div class="weather-location">
                 <i class="fa-solid fa-location-dot"></i>
@@ -1047,52 +1073,13 @@ weatherBtn.addEventListener("click", async function () {
                   <span class="detail-value">${x.hourly.precipitation_probability[0]}%</span>
                 </div>
               </div>
+              
             </div>
 
              <div class="weather-section">
               <h3 class="weather-section-title"><i class="fa-solid fa-clock"></i> Hourly Forecast</h3>
               <div class="hourly-scroll">
-                <div class="hourly-item now">
-                  <span class="hourly-time">Now</span>
-                  <div class="hourly-icon"><i class="fa-solid fa-sun"></i></div>
-                  <span class="hourly-temp">22°</span>
-                </div>
-                <div class="hourly-item">
-                  <span class="hourly-time">10 AM</span>
-                  <div class="hourly-icon"><i class="fa-solid fa-sun"></i></div>
-                  <span class="hourly-temp">23°</span>
-                </div>
-                <div class="hourly-item">
-                  <span class="hourly-time">11 AM</span>
-                  <div class="hourly-icon"><i class="fa-solid fa-sun"></i></div>
-                  <span class="hourly-temp">24°</span>
-                </div>
-                <div class="hourly-item">
-                  <span class="hourly-time">12 PM</span>
-                  <div class="hourly-icon"><i class="fa-solid fa-sun"></i></div>
-                  <span class="hourly-temp">25°</span>
-                </div>
-                <div class="hourly-item">
-                  <span class="hourly-time">1 PM</span>
-                  <div class="hourly-icon"><i class="fa-solid fa-sun"></i></div>
-                  <span class="hourly-temp">25°</span>
-                </div>
-                <div class="hourly-item">
-                  <span class="hourly-time">2 PM</span>
-                  <div class="hourly-icon"><i class="fa-solid fa-cloud-sun"></i></div>
-                  <span class="hourly-temp">24°</span>
-                </div>
-                <div class="hourly-item">
-                  <span class="hourly-time">3 PM</span>
-                  <div class="hourly-icon"><i class="fa-solid fa-cloud-sun"></i></div>
-                  <span class="hourly-temp">23°</span>
-                </div>
-                <div class="hourly-item">
-                  <span class="hourly-time">4 PM</span>
-                  <div class="hourly-icon"><i class="fa-solid fa-cloud"></i></div>
-                  <span class="hourly-temp">21°</span>
-                </div>
-              </div>
+               ${hourlyContainer}
             </div>
             
             <!-- 7-Day Forecast -->
@@ -1102,43 +1089,43 @@ weatherBtn.addEventListener("click", async function () {
                 <div class="forecast-day today">
                   <div class="forecast-day-name"><span class="day-label">Today</span><span class="day-date">25 Jan</span></div>
                   <div class="forecast-icon"><i class="fa-solid fa-sun"></i></div>
-                  <div class="forecast-temps"><span class="temp-max">25°</span><span class="temp-min">12°</span></div>
+                  <div class="forecast-temps"><span class="temp-max">${x.daily.apparent_temperature_max[0]}°</span><span class="temp-min">${x.daily.apparent_temperature_min[0]}°</span></div>
                   <div class="forecast-precip"></div>
                 </div>
                 <div class="forecast-day">
                   <div class="forecast-day-name"><span class="day-label">Sun</span><span class="day-date">26 Jan</span></div>
                   <div class="forecast-icon"><i class="fa-solid fa-sun"></i></div>
-                  <div class="forecast-temps"><span class="temp-max">24°</span><span class="temp-min">11°</span></div>
+                  <div class="forecast-temps"><span class="temp-max">${x.daily.apparent_temperature_max[1]}°</span><span class="temp-min">${x.daily.apparent_temperature_min[1]}°</span></div>
                   <div class="forecast-precip"></div>
                 </div>
                 <div class="forecast-day">
                   <div class="forecast-day-name"><span class="day-label">Mon</span><span class="day-date">27 Jan</span></div>
                   <div class="forecast-icon"><i class="fa-solid fa-cloud-sun"></i></div>
-                  <div class="forecast-temps"><span class="temp-max">23°</span><span class="temp-min">12°</span></div>
+                  <div class="forecast-temps"><span class="temp-max">${x.daily.apparent_temperature_max[2]}°</span><span class="temp-min">${x.daily.apparent_temperature_min[2]}°</span></div>
                   <div class="forecast-precip"><i class="fa-solid fa-droplet"></i><span>10%</span></div>
                 </div>
                 <div class="forecast-day">
                   <div class="forecast-day-name"><span class="day-label">Tue</span><span class="day-date">28 Jan</span></div>
                   <div class="forecast-icon"><i class="fa-solid fa-cloud"></i></div>
-                  <div class="forecast-temps"><span class="temp-max">21°</span><span class="temp-min">10°</span></div>
+                  <div class="forecast-temps"><span class="temp-max">${x.daily.apparent_temperature_max[3]}°</span><span class="temp-min">${x.daily.apparent_temperature_min[3]}°</span></div>
                   <div class="forecast-precip"><i class="fa-solid fa-droplet"></i><span>20%</span></div>
                 </div>
                 <div class="forecast-day">
                   <div class="forecast-day-name"><span class="day-label">Wed</span><span class="day-date">29 Jan</span></div>
                   <div class="forecast-icon"><i class="fa-solid fa-sun"></i></div>
-                  <div class="forecast-temps"><span class="temp-max">22°</span><span class="temp-min">11°</span></div>
+                  <div class="forecast-temps"><span class="temp-max">${x.daily.apparent_temperature_max[4]}°</span><span class="temp-min">${x.daily.apparent_temperature_min[4]}°</span></div>
                   <div class="forecast-precip"></div>
                 </div>
                 <div class="forecast-day">
                   <div class="forecast-day-name"><span class="day-label">Thu</span><span class="day-date">30 Jan</span></div>
                   <div class="forecast-icon"><i class="fa-solid fa-sun"></i></div>
-                  <div class="forecast-temps"><span class="temp-max">24°</span><span class="temp-min">12°</span></div>
+                  <div class="forecast-temps"><span class="temp-max">${x.daily.apparent_temperature_max[5]}°</span><span class="temp-min">${x.daily.apparent_temperature_min[5]}°</span></div>
                   <div class="forecast-precip"></div>
                 </div>
                 <div class="forecast-day">
                   <div class="forecast-day-name"><span class="day-label">Fri</span><span class="day-date">31 Jan</span></div>
                   <div class="forecast-icon"><i class="fa-solid fa-sun"></i></div>
-                  <div class="forecast-temps"><span class="temp-max">25°</span><span class="temp-min">13°</span></div>
+                  <div class="forecast-temps"><span class="temp-max">${x.daily.apparent_temperature_max[6]}°</span><span class="temp-min">${x.daily.apparent_temperature_min[6]}°</span></div>
                   <div class="forecast-precip"></div>
                 </div>
               </div>
@@ -1147,6 +1134,8 @@ weatherBtn.addEventListener("click", async function () {
             
     
     `
+
+  
   weatherContent.innerHTML += container7;
 
 
@@ -1235,17 +1224,7 @@ currencyBtn.addEventListener("click", async function () {
   `;
   }
 
-
-
-
-
-  //  const response = await fetch(`https://v6.exchangerate-api.com/v6/9c25e1e982a03d6f88801eae/latest/USD`)
-  // const x = await response.json()
-  // console.log(x);
-
-
 })
-
 
  savedPlans = localStorage.getItem("plans");
  
@@ -1255,36 +1234,3 @@ if (savedPlans) {
 
 }
  
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// document.getElementById("filter-all-count").textContent =
-//     plansContent.querySelectorAll(".plan-card").length;
-
-// document.getElementById("filter-holiday-count").textContent =
-//     plansContent.querySelectorAll(".plan-card-type.holiday").length;
-
-// document.getElementById("filter-event-count").textContent =
-//     plansContent.querySelectorAll(".plan-card-type.event").length;
-
-// document.getElementById("filter-lw-count").textContent =
-//     plansContent.querySelectorAll(".plan-card-type.longweekend").length;
