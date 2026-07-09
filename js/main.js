@@ -26,6 +26,7 @@ let eventsContent = document.getElementById("events-content")
 let eventsContentView = document.querySelector(".events-content-view")
 let weatherContent = document.getElementById("weather-content")
 let weatherContentView = document.querySelector(".weather-content-view")
+let longweekHeader = document.querySelector(".longweekHeader")
 let dashboardContent = document.getElementById("dashboard-country-info-section")
 let longWeekContent = document.getElementById("lw-content")
 let year;
@@ -87,7 +88,7 @@ async function loadCountries() {
       "https://api.restcountries.com/countries/v5",
       {
         headers: {
-          Authorization: "Bearer rc_live_5a794ffa7661412194f291a63c0ae2c7",
+          Authorization: "Bearer rc_live_bbd6f25bc81b48348de843c4e9527d01",
         },
       }
     );
@@ -136,11 +137,16 @@ exploreBtn.addEventListener("click", async function () {
   city = cityInput.value;
   year = yearInput.value;
 
+  // const response = await fetch(
+  //   `https://api.restcountries.com/countries/v5?q=${country}`,
+  //   { headers: { 'Authorization': 'Bearer rc_live_5a794ffa7661412194f291a63c0ae2c7' } }
+  // );
+  // const data = await response.json();
   const response = await fetch(
-    `https://api.restcountries.com/countries/v5?q=${country}`,
-    { headers: { 'Authorization': 'Bearer rc_live_5a794ffa7661412194f291a63c0ae2c7' } }
-  );
-  const data = await response.json();
+  `https://api.restcountries.com/countries/v5?q=${country}`,
+  { headers: { 'Authorization': 'Bearer rc_live_bbd6f25bc81b48348de843c4e9527d01' } }
+);
+const data = await response.json();
 
   for (let i = 0; i < data.data.objects.length; i++) {
     mainData = data.data.objects[i];
@@ -392,7 +398,7 @@ longWeekEndBtn.addEventListener("click", async function () {
 
 
   const response = await fetch(
-    `https://date.nager.at/api/v3/LongWeekend/${year}/BE`
+    `https://date.nager.at/api/v3/LongWeekend/${year}/${countryCode}`
   );
   const data = await response.json();
   console.log(data);
@@ -483,7 +489,25 @@ for (let i = 0; i < saveButtons.length; i++) {
         
     });
 };
+let containerheader = `
+            
 
+ <div class="view-header-icon"><i class="fa-solid fa-umbrella-beach"></i></div>
+            <div class="view-header-content">
+              <h2>Long Weekend Finder</h2>
+              <p>Find holidays near weekends - perfect for planning mini-trips!</p>
+            </div>
+            <div class="view-header-selection">
+              <div class="current-selection-badge">
+                <img src="${mainData.flag.url_png}" alt="Egypt" class="selection-flag">
+                <span>${country}</span>
+                <span class="selection-year">${year}</span>
+              </div>
+            </div>
+
+              `
+
+  longweekHeader.innerHTML = containerheader
 })
 // ============================PLANS=========================
 
@@ -631,7 +655,7 @@ holidayBtn.addEventListener("click", async function () {
 
 
 
-  const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/BE`)
+  const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/${countryCode}`)
   const x = await response.json()
   console.log(x);
 
@@ -785,7 +809,7 @@ eventsBtn.addEventListener("click", async function () {
   myEvents.getEvents()
   history.pushState({}, "", "?page=events");
 
-  const response = await fetch(`https://app.ticketmaster.com/discovery/v2/events.json?apikey=VwECw2OiAzxVzIqnwmKJUG41FbeXJk1y&city=Brussels&countryCode=BE&size=20`)
+  const response = await fetch(`https://app.ticketmaster.com/discovery/v2/events.json?apikey=VwECw2OiAzxVzIqnwmKJUG41FbeXJk1y&city=${capital}&countryCode=${countryCode}&size=20`)
   const x = await response.json()
   console.log(x._embedded.events);
 
@@ -901,13 +925,13 @@ for (let i = 0; i < saveEventBtns.length; i++) {
      <div class="view-header-icon"><i class="fa-solid fa-ticket"></i></div>
             <div class="view-header-content">
               <h2>Events Explorer</h2>
-              <p>Discover concerts, sports, theatre and more in ${city}</p>
+              <p>Discover concerts, sports, theatre and more in ${capital}</p>
             </div>
             <div class="view-header-selection ">
               <div class="current-selection-badge">
-                <img src="https://flagcdn.com/w40/eg.png" alt="Egypt" class="selection-flag">
+                <img src="${mainData.flag.url_png}" alt="Egypt" class="selection-flag">
                 <span>${country}</span>
-                <span class="selection-city"> ${city}</span>
+                <span class="selection-city"> ${capital}</span>
               </div>
             </div>`
 
@@ -978,13 +1002,13 @@ weatherBtn.addEventListener("click", async function () {
     <div class="view-header-icon"><i class="fa-solid fa-cloud-sun"></i></div>
             <div class="view-header-content">
               <h2>Weather Forecast</h2>
-              <p>Check 7-day weather forecasts for ${city}</p>
+              <p>Check 7-day weather forecasts for ${capital}</p>
             </div>
             <div class="view-header-selection">
               <div class="current-selection-badge">
-                <img src="https://flagcdn.com/w40/eg.png" alt="Egypt" class="selection-flag">
+                <img src="${mainData.flag.url_png}" alt="Egypt" class="selection-flag">
                 <span>${country}</span>
-                <span class="selection-city">${city}</span>
+                <span class="selection-city">${capital}</span>
               </div>
             </div>`
 
